@@ -34,3 +34,7 @@ vnpy_sopttest.egg-info/
 # Visual Studio
 .vs/
 x64/
+
+build/
+dist/
+*.egg-info/
