@@ -150,8 +150,8 @@ class SopttestGateway(BaseGateway):
         """构造函数"""
         super().__init__(event_engine, gateway_name)
 
-        self.td_api: "SopttestTdApi" = SopttestTdApi(self)
-        self.md_api: "SopttestMdApi" = SopttestMdApi(self)
+        self.td_api: SopttestTdApi = SopttestTdApi(self)
+        self.md_api: SopttestMdApi = SopttestMdApi(self)
 
     def connect(self, setting: dict) -> None:
         """连接交易接口"""
