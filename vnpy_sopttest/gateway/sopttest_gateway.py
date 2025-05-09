@@ -120,6 +120,26 @@ OPTIONTYPE_SOPT2VT: dict[str, OptionType] = {
     THOST_FTDC_CP_PutOptions: OptionType.PUT
 }
 
+# 交易状态映射
+ACTIVE_SOPT2VT: dict[str, bool] = {
+    "0": False,     # 开盘前
+    "1": False,     # 非交易
+    "2": True,      # 连续交易
+    "3": True,      # 集合竞价报单
+    "4": False,     # 集合竞价价格平衡
+    "5": False,     # 集合竞价撮合
+    "6": False,     # 收盘
+    "7": False,     # 集合竞价
+    "8": False,     # 休市
+    "9": False,     # 波动性中断
+    "a": False,     # 临时停牌
+    "b": False,     # 收盘集合竞价
+    "c": False,     # 可恢复交易的熔断
+    "d": False,     # 不可恢复交易的熔断
+    "e": False,     # 盘后交易
+}
+
+
 # 其他常量
 CHINA_TZ = ZoneInfo("Asia/Shanghai")       # 中国时区
 
@@ -297,6 +317,7 @@ class SopttestMdApi(MdApi):
             datetime=dt,
             name=contract.name,
             volume=data["Volume"],
+            turnover=data["Turnover"],
             open_interest=data["OpenInterest"],
             last_price=data["LastPrice"],
             limit_up=data["UpperLimitPrice"],
@@ -311,6 +332,8 @@ class SopttestMdApi(MdApi):
             ask_volume_1=data["AskVolume1"],
             gateway_name=self.gateway_name
         )
+        
+        tick.extra = {"trading_active": contract.extra["trading_active"]}
 
         tick.bid_price_2 = data["BidPrice2"]
         tick.bid_price_3 = data["BidPrice3"]
@@ -576,6 +599,7 @@ class SopttestTdApi(TdApi):
                 pricetick=data["PriceTick"],
                 gateway_name=self.gateway_name
             )
+            contract.extra = {"trading_active": True}
 
             # 期权相关
             if contract.product == Product.OPTION:
@@ -589,9 +613,7 @@ class SopttestTdApi(TdApi):
                 contract.option_type = OPTIONTYPE_SOPT2VT.get(data["OptionsType"], None)
                 contract.option_strike = data["StrikePrice"]
                 contract.option_expiry = datetime.strptime(data["ExpireDate"], "%Y%m%d")
-                contract.option_index = get_option_index(
-                    contract.option_strike, data["InstrumentCode"]
-                )
+                contract.option_index = get_option_index(contract.option_strike, data["InstrumentCode"])
 
             self.gateway.on_contract(contract)
 
@@ -675,6 +697,16 @@ class SopttestTdApi(TdApi):
             gateway_name=self.gateway_name
         )
         self.gateway.on_trade(trade)
+
+    def onRtnInstrumentStatus(self, data: dict) -> None:
+        """合约交易状态推送"""
+        symbol: str = data["InstrumentID"]
+        contract: ContractData = symbol_contract_map.get(symbol, None)
+        if not contract:
+            return
+
+        trading_active: bool = ACTIVE_SOPT2VT.get(data["InstrumentStatus"], False)
+        contract.extra["trading_active"] = trading_active
 
     def connect(
         self,
@@ -770,7 +802,10 @@ class SopttestTdApi(TdApi):
         }
 
         self.reqid += 1
-        self.reqOrderInsert(sopttest_req, self.reqid)
+        n: int = self.reqOrderInsert(sopttest_req, self.reqid)
+        if n:
+            self.gateway.write_log(f"委托请求发送失败，错误代码：{n}")
+            return ""
 
         orderid: str = f"{self.frontid}_{self.sessionid}_{self.order_ref}"
         order: OrderData = req.create_order_data(orderid, self.gateway_name)
