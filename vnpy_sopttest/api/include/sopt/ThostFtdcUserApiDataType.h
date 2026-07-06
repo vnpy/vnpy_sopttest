@@ -420,6 +420,8 @@ typedef char TThostFtdcTraderConnectStatusType;
 #define THOST_FTDC_FC_SyncOTP 'E'
 ///删除未知单
 #define THOST_FTDC_FC_DeleteOrder 'F'
+///退出紧急状态
+#define THOST_FTDC_FC_ExitEmergency 'G'
 
 typedef char TThostFtdcFunctionCodeType;
 
@@ -2579,10 +2581,14 @@ typedef char TThostFtdcClearbarchIDType[6];
 #define THOST_FTDC_UET_UpdatePassword '5'
 ///客户端认证
 #define THOST_FTDC_UET_Authenticate '6'
-///短信验证码
-#define THOST_FTDC_UET_SmsCode '7'
+///终端信息上报
+#define THOST_FTDC_UET_SubmitSysInfo '7'
+///转账
+#define THOST_FTDC_UET_Transfer '8'
 ///其他
 #define THOST_FTDC_UET_Other '9'
+///修改资金密码
+#define THOST_FTDC_UET_UpdateTradingAccountPassword 'a'
 
 typedef char TThostFtdcUserEventTypeType;
 
@@ -2948,6 +2954,11 @@ typedef char TThostFtdcDBFFdContentType[256];
 ///TFtdcIndividualNameType是一个个人姓名类型
 /////////////////////////////////////////////////////////////////////////
 typedef char TThostFtdcIndividualNameType[51];
+
+/////////////////////////////////////////////////////////////////////////
+///TFtdcLongIndividualNameType是一个长个人姓名类型
+/////////////////////////////////////////////////////////////////////////
+typedef char TThostFtdcLongIndividualNameType[201];
 
 /////////////////////////////////////////////////////////////////////////
 ///TFtdcCurrencyIDType是一个币种代码类型
@@ -6471,6 +6482,8 @@ typedef char TThostFtdcCFFEXUploadFileNameType;
 #define THOST_FTDC_CMDR_Comb '0'
 ///申请拆分
 #define THOST_FTDC_CMDR_UnComb '1'
+///操作员删组合单
+#define THOST_FTDC_CMDR_DelComb '2'
 
 typedef char TThostFtdcCombDirectionType;
 
@@ -7169,6 +7182,16 @@ typedef char TThostFtdcLongAccountIDType[36];
 ///TFtdcBigVolumeType是一个成交量(long long型)类型
 /////////////////////////////////////////////////////////////////////////
 typedef long long TThostFtdcBigVolumeType;
+
+/////////////////////////////////////////////////////////////////////////
+///TFtdcExchangeGateWayTypeType是一个交易所网关类型类型
+/////////////////////////////////////////////////////////////////////////
+///可交易的网关
+#define THOST_FTDC_EGWT_Trade '1'
+///仅可订阅的网关
+#define THOST_FTDC_EGWT_Subscribe '2'
+
+typedef char TThostFtdcExchangeGateWayTypeType;
 
 
 }

@@ -76,7 +76,7 @@ public:
 	virtual void OnRspOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
 	///查询最大报单数量响应
-	virtual void OnRspQueryMaxOrderVolume(CThostFtdcQueryMaxOrderVolumeField *pQueryMaxOrderVolume, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+	virtual void OnRspQryMaxOrderVolume(CThostFtdcQryMaxOrderVolumeField *pQryMaxOrderVolume, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
 	///投资者结算结果确认响应
 	virtual void OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
@@ -236,6 +236,9 @@ public:
 
 	///请求查询金额限制
 	virtual void OnRspQryLimitAmount(CThostFtdcLimitAmountField *pLimitAmount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
+
+	///请求查询现货投资者持仓响应
+	virtual void OnRspQrySecInvestorPosition(CThostFtdcSecInvestorPositionField *pSecInvestorPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
 
 	///请求查询组合合约安全系数响应
 	virtual void OnRspQryCombInstrumentGuard(CThostFtdcCombInstrumentGuardField *pCombInstrumentGuard, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {};
@@ -551,7 +554,7 @@ public:
 	virtual int ReqOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction, int nRequestID) = 0;
 
 	///查询最大报单数量请求
-	virtual int ReqQueryMaxOrderVolume(CThostFtdcQueryMaxOrderVolumeField *pQueryMaxOrderVolume, int nRequestID) = 0;
+	virtual int ReqQryMaxOrderVolume(CThostFtdcQryMaxOrderVolumeField *pQryMaxOrderVolume, int nRequestID) = 0;
 
 	///投资者结算结果确认
 	virtual int ReqSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, int nRequestID) = 0;
@@ -711,6 +714,9 @@ public:
 
 	///请求查询金额限制
 	virtual int ReqQryLimitAmount(CThostFtdcQryLimitAmountField *pQryLimitAmount, int nRequestID) = 0;
+
+	///请求查询现货投资者持仓
+	virtual int ReqQrySecInvestorPosition(CThostFtdcQrySecInvestorPositionField *pQrySecInvestorPosition, int nRequestID) = 0;
 
 	///请求查询组合合约安全系数
 	virtual int ReqQryCombInstrumentGuard(CThostFtdcQryCombInstrumentGuardField *pQryCombInstrumentGuard, int nRequestID) = 0;
