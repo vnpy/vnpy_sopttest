@@ -526,6 +526,8 @@ struct CThostFtdcTraderField
 	TThostFtdcInstallCountType	InstallCount;
 	///经纪公司代码
 	TThostFtdcBrokerIDType	BrokerID;
+	///交易所网关类型
+	TThostFtdcExchangeGateWayTypeType	GateWayType;
 };
 
 ///投资者
@@ -2032,7 +2034,7 @@ struct CThostFtdcUserSessionField
 };
 
 ///查询最大报单数量
-struct CThostFtdcQueryMaxOrderVolumeField
+struct CThostFtdcQryMaxOrderVolumeField
 {
 	///经纪公司代码
 	TThostFtdcBrokerIDType	BrokerID;
@@ -4503,8 +4505,8 @@ struct CThostFtdcETFOptionInstrCommRateField
 	TThostFtdcExchangeIDType	ExchangeID;
 	///投机套保标志
 	TThostFtdcHedgeFlagType	HedgeFlag;
-	///持仓方向
-	TThostFtdcPosiDirectionType	PosiDirection;
+	///买卖方向
+	TThostFtdcDirectionType	Direction;
 };
 
 ///ETF期权手续费率查询
@@ -5223,6 +5225,10 @@ struct CThostFtdcInputCombActionField
 	TThostFtdcTradeIDType	ComTradeID;
 	///IP地址
 	TThostFtdcIPAddressType	IPAddress;
+	///原申报交易员代码
+	TThostFtdcTraderIDType	TraderID;
+	///原申报本地报单编号
+	TThostFtdcOrderLocalIDType	ActionLocalID;
 };
 
 ///申请组合
@@ -6498,7 +6504,7 @@ struct CThostFtdcMarketDataField
 	///最低价
 	TThostFtdcPriceType	LowestPrice;
 	///数量
-	TThostFtdcVolumeType	Volume;
+	TThostFtdcBigVolumeType	Volume;
 	///成交金额
 	TThostFtdcMoneyType	Turnover;
 	///持仓量
@@ -6523,8 +6529,6 @@ struct CThostFtdcMarketDataField
 	TThostFtdcDateType	ActionDay;
 	///行情发送时间
 	TThostFtdcSendingTimeType	SendingTime;
-	///成交量(long long型）
-	TThostFtdcBigVolumeType	BigVolume;
 };
 
 ///行情基础属性
@@ -7847,7 +7851,7 @@ struct CThostFtdcExchangeSequenceField
 };
 
 ///根据价格查询最大报单数量
-struct CThostFtdcQueryMaxOrderVolumeWithPriceField
+struct CThostFtdcQryMaxOrderVolumeWithPriceField
 {
 	///经纪公司代码
 	TThostFtdcBrokerIDType	BrokerID;
@@ -10682,20 +10686,6 @@ struct CThostFtdcAccountPropertyField
 	TThostFtdcInvestorFullNameType	OpenName;
 	///银行账户的开户行
 	TThostFtdcOpenBankType	OpenBank;
-	///是否活跃
-	TThostFtdcBoolType	IsActive;
-	///账户来源
-	TThostFtdcAccountSourceTypeType	AccountSourceType;
-	///开户日期
-	TThostFtdcDateType	OpenDate;
-	///注销日期
-	TThostFtdcDateType	CancelDate;
-	///录入员代码
-	TThostFtdcOperatorIDType	OperatorID;
-	///录入日期
-	TThostFtdcDateType	OperateDate;
-	///录入时间
-	TThostFtdcTimeType	OperateTime;
 	///币种代码
 	TThostFtdcCurrencyIDType	CurrencyID;
 };
@@ -11922,6 +11912,61 @@ struct CThostFtdcAuthInvestorField
 	TThostFtdcProductInfoType	UserProductInfo;
 };
 
+///现货投资者持仓
+struct CThostFtdcSecInvestorPositionField
+{
+	///经纪公司代码
+	TThostFtdcBrokerIDType	BrokerID;
+	///现货系统投资者代码
+	TThostFtdcInvestorIDType	SecInvestorID;
+	///交易所代码
+	TThostFtdcExchangeIDType	ExchangeID;
+	///标的合约代码
+	TThostFtdcInstrumentIDType	UnderlyingInstrID;
+	///总持仓
+	TThostFtdcVolumeType	Position;
+	///今开仓
+	TThostFtdcVolumeType	TodayPosition;
+	///买挂单
+	TThostFtdcVolumeType	BuyPendingOrder;
+	///卖挂单
+	TThostFtdcVolumeType	SellPendingOrder;
+	///总冻结
+	TThostFtdcVolumeType	TotalFrozen;
+	///期权系统投资者代码
+	TThostFtdcInvestorIDType	InvestorID;
+	///行权冻结
+	TThostFtdcVolumeType	ExecFrozen;
+	///总备兑冻结
+	TThostFtdcVolumeType	TotalConvertFrozen;
+	///当日备兑冻结
+	TThostFtdcVolumeType	TodayConvertFrozen;
+	///上交所锁定冻结
+	TThostFtdcVolumeType	LockFrozen;
+	///临时冻结
+	TThostFtdcVolumeType	BrokerFrozen;
+};
+
+///查询现货投资者持仓
+struct CThostFtdcQrySecInvestorPositionField
+{
+	///经纪公司代码
+	TThostFtdcBrokerIDType	BrokerID;
+	///期权系统投资者代码
+	TThostFtdcInvestorIDType	InvestorID;
+	///交易所代码
+	TThostFtdcExchangeIDType	ExchangeID;
+	///标的合约代码
+	TThostFtdcInstrumentIDType	UnderlyingInstrID;
+};
+
+///退出紧急状态参数
+struct CThostFtdcExitEmergencyField
+{
+	///经纪公司代码
+	TThostFtdcBrokerIDType	BrokerID;
+};
+
 ///资金内转输入
 struct CThostFtdcInputInternalTransferField
 {
@@ -12122,6 +12167,8 @@ struct CThostFtdcOptFutInvestorMapField
 	TThostFtdcInvestorIDType	OptInvestorID;
 	///期货投资者代码
 	TThostFtdcInvestorIDType	FutInvestorID;
+	///现货投资者代码
+	TThostFtdcInvestorIDType	SecInvestorID;
 };
 
 ///查询对应的期货资金账户

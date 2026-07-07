@@ -16,7 +16,7 @@ using namespace pybind11;
 #define ONRSPPARKEDORDERINSERT 9
 #define ONRSPPARKEDORDERACTION 10
 #define ONRSPORDERACTION 11
-#define ONRSPQUERYMAXORDERVOLUME 12
+#define ONRSPQRYMAXORDERVOLUME 12
 #define ONRSPSETTLEMENTINFOCONFIRM 13
 #define ONRSPREMOVEPARKEDORDER 14
 #define ONRSPREMOVEPARKEDORDERACTION 15
@@ -140,6 +140,7 @@ using namespace pybind11;
 #define ONRTNINTERNALTRANSFER 133
 #define ONRSPQRYINTERNALTRANSFER 134
 #define ONRSPQRYFUTURETRADINGACCOUNT 135
+#define ONRSPQRYSECINVESTORPOSITION 136
 
 
 class TdApi :public CThostFtdcTraderSpi
@@ -206,7 +207,7 @@ public:
 	virtual void OnRspOrderAction(CThostFtdcInputOrderActionField* pInputOrderAction, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
 
 	///查询最大报单数量响应
-	virtual void OnRspQueryMaxOrderVolume(CThostFtdcQueryMaxOrderVolumeField* pQueryMaxOrderVolume, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	virtual void OnRspQryMaxOrderVolume(CThostFtdcQryMaxOrderVolumeField* pQueryMaxOrderVolume, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
 
 	///投资者结算结果确认响应
 	virtual void OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField* pSettlementInfoConfirm, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
@@ -366,6 +367,9 @@ public:
 
 	///请求查询金额限制
 	virtual void OnRspQryLimitAmount(CThostFtdcLimitAmountField* pLimitAmount, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+
+	///请求查询现货投资者持仓响应
+	virtual void OnRspQrySecInvestorPosition(CThostFtdcSecInvestorPositionField* pSecInvestorPosition, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
 
 	///请求查询组合合约安全系数响应
 	virtual void OnRspQryCombInstrumentGuard(CThostFtdcCombInstrumentGuardField* pCombInstrumentGuard, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
@@ -609,7 +613,7 @@ public:
 
 	virtual void onRspOrderAction(const dict& data, const dict& error, int reqid, bool last) {};
 
-	virtual void onRspQueryMaxOrderVolume(const dict& data, const dict& error, int reqid, bool last) {};
+	virtual void onRspQryMaxOrderVolume(const dict& data, const dict& error, int reqid, bool last) {};
 
 	virtual void onRspSettlementInfoConfirm(const dict& data, const dict& error, int reqid, bool last) {};
 
@@ -716,6 +720,8 @@ public:
 	virtual void onRspQryExecFreeze(const dict& data, const dict& error, int reqid, bool last) {};
 
 	virtual void onRspQryLimitAmount(const dict& data, const dict& error, int reqid, bool last) {};
+
+	virtual void onRspQrySecInvestorPosition(const dict& data, const dict& error, int reqid, bool last) {};
 
 	virtual void onRspQryCombInstrumentGuard(const dict& data, const dict& error, int reqid, bool last) {};
 
@@ -887,7 +893,7 @@ public:
 
 	void processRspOrderAction(Task* task);
 
-	void processRspQueryMaxOrderVolume(Task* task);
+	void processRspQryMaxOrderVolume(Task* task);
 
 	void processRspSettlementInfoConfirm(Task* task);
 
@@ -994,6 +1000,8 @@ public:
 	void processRspQryExecFreeze(Task* task);
 
 	void processRspQryLimitAmount(Task* task);
+
+	void processRspQrySecInvestorPosition(Task* task);
 
 	void processRspQryCombInstrumentGuard(Task* task);
 
@@ -1181,7 +1189,7 @@ public:
 
 	int reqOrderAction(const dict& req, int reqid);
 
-	int reqQueryMaxOrderVolume(const dict& req, int reqid);
+	int reqQryMaxOrderVolume(const dict& req, int reqid);
 
 	int reqSettlementInfoConfirm(const dict& req, int reqid);
 
@@ -1288,6 +1296,8 @@ public:
 	int reqQryExecFreeze(const dict& req, int reqid);
 
 	int reqQryLimitAmount(const dict& req, int reqid);
+
+	int reqQrySecInvestorPosition(const dict& req, int reqid);
 
 	int reqQryCombInstrumentGuard(const dict& req, int reqid);
 

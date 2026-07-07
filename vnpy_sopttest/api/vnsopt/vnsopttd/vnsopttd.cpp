@@ -216,13 +216,13 @@ void TdApi::OnRspOrderAction(CThostFtdcInputOrderActionField* pInputOrderAction,
 	this->task_queue.push(task);
 };
 
-void TdApi::OnRspQueryMaxOrderVolume(CThostFtdcQueryMaxOrderVolumeField* pQueryMaxOrderVolume, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+void TdApi::OnRspQryMaxOrderVolume(CThostFtdcQryMaxOrderVolumeField* pQueryMaxOrderVolume, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
 	Task task = Task();
-	task.task_name = ONRSPQUERYMAXORDERVOLUME;
+	task.task_name = ONRSPQRYMAXORDERVOLUME;
 	if (pQueryMaxOrderVolume)
 	{
-		CThostFtdcQueryMaxOrderVolumeField* task_data = new CThostFtdcQueryMaxOrderVolumeField();
+		CThostFtdcQryMaxOrderVolumeField* task_data = new CThostFtdcQryMaxOrderVolumeField();
 		*task_data = *pQueryMaxOrderVolume;
 		task.task_data = task_data;
 	}
@@ -1337,6 +1337,27 @@ void TdApi::OnRspQryLimitAmount(CThostFtdcLimitAmountField* pLimitAmount, CThost
 	{
 		CThostFtdcLimitAmountField* task_data = new CThostFtdcLimitAmountField();
 		*task_data = *pLimitAmount;
+		task.task_data = task_data;
+	}
+	if (pRspInfo)
+	{
+		CThostFtdcRspInfoField* task_error = new CThostFtdcRspInfoField();
+		*task_error = *pRspInfo;
+		task.task_error = task_error;
+	}
+	task.task_id = nRequestID;
+	task.task_last = bIsLast;
+	this->task_queue.push(task);
+};
+
+void TdApi::OnRspQrySecInvestorPosition(CThostFtdcSecInvestorPositionField* pSecInvestorPosition, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+{
+	Task task = Task();
+	task.task_name = ONRSPQRYSECINVESTORPOSITION;
+	if (pSecInvestorPosition)
+	{
+		CThostFtdcSecInvestorPositionField* task_data = new CThostFtdcSecInvestorPositionField();
+		*task_data = *pSecInvestorPosition;
 		task.task_data = task_data;
 	}
 	if (pRspInfo)
@@ -2894,13 +2915,13 @@ void TdApi::processRspOrderAction(Task* task)
 	this->onRspOrderAction(data, error, task->task_id, task->task_last);
 };
 
-void TdApi::processRspQueryMaxOrderVolume(Task* task)
+void TdApi::processRspQryMaxOrderVolume(Task* task)
 {
 	gil_scoped_acquire acquire;
 	dict data;
 	if (task->task_data)
 	{
-		CThostFtdcQueryMaxOrderVolumeField* task_data = (CThostFtdcQueryMaxOrderVolumeField*)task->task_data;
+		CThostFtdcQryMaxOrderVolumeField* task_data = (CThostFtdcQryMaxOrderVolumeField*)task->task_data;
 		data["BrokerID"] = toUtf(task_data->BrokerID);
 		data["InvestorID"] = toUtf(task_data->InvestorID);
 		data["InstrumentID"] = toUtf(task_data->InstrumentID);
@@ -2920,7 +2941,7 @@ void TdApi::processRspQueryMaxOrderVolume(Task* task)
 		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
 		delete task_error;
 	}
-	this->onRspQueryMaxOrderVolume(data, error, task->task_id, task->task_last);
+	this->onRspQryMaxOrderVolume(data, error, task->task_id, task->task_last);
 };
 
 void TdApi::processRspSettlementInfoConfirm(Task* task)
@@ -3280,6 +3301,8 @@ void TdApi::processRspCombActionInsert(Task* task)
 		data["InvestUnitID"] = toUtf(task_data->InvestUnitID);
 		data["ComTradeID"] = toUtf(task_data->ComTradeID);
 		data["IPAddress"] = toUtf(task_data->IPAddress);
+		data["TraderID"] = toUtf(task_data->TraderID);
+		data["ActionLocalID"] = toUtf(task_data->ActionLocalID);
 		delete task_data;
 	}
 	dict error;
@@ -3866,7 +3889,6 @@ void TdApi::processRspQryDepthMarketData(Task* task)
 		data["ActionDay"] = toUtf(task_data->ActionDay);
 		data["CircuitRefPrice"] = task_data->CircuitRefPrice;
 		data["SendingTime"] = toUtf(task_data->SendingTime);
-		data["BigVolume"] = task_data->BigVolume;
 		delete task_data;
 	}
 	dict error;
@@ -4783,7 +4805,7 @@ void TdApi::processRspQryETFOptionInstrCommRate(Task* task)
 		data["StrikeRatioByVolume"] = task_data->StrikeRatioByVolume;
 		data["ExchangeID"] = toUtf(task_data->ExchangeID);
 		data["HedgeFlag"] = task_data->HedgeFlag;
-		data["PosiDirection"] = task_data->PosiDirection;
+		data["Direction"] = task_data->Direction;
 		delete task_data;
 	}
 	dict error;
@@ -4904,6 +4926,41 @@ void TdApi::processRspQryLimitAmount(Task* task)
 		delete task_error;
 	}
 	this->onRspQryLimitAmount(data, error, task->task_id, task->task_last);
+};
+
+void TdApi::processRspQrySecInvestorPosition(Task* task)
+{
+	gil_scoped_acquire acquire;
+	dict data;
+	if (task->task_data)
+	{
+		CThostFtdcSecInvestorPositionField* task_data = (CThostFtdcSecInvestorPositionField*)task->task_data;
+		data["BrokerID"] = toUtf(task_data->BrokerID);
+		data["SecInvestorID"] = toUtf(task_data->SecInvestorID);
+		data["ExchangeID"] = toUtf(task_data->ExchangeID);
+		data["UnderlyingInstrID"] = toUtf(task_data->UnderlyingInstrID);
+		data["Position"] = task_data->Position;
+		data["TodayPosition"] = task_data->TodayPosition;
+		data["BuyPendingOrder"] = task_data->BuyPendingOrder;
+		data["SellPendingOrder"] = task_data->SellPendingOrder;
+		data["TotalFrozen"] = task_data->TotalFrozen;
+		data["InvestorID"] = toUtf(task_data->InvestorID);
+		data["ExecFrozen"] = task_data->ExecFrozen;
+		data["TotalConvertFrozen"] = task_data->TotalConvertFrozen;
+		data["TodayConvertFrozen"] = task_data->TodayConvertFrozen;
+		data["LockFrozen"] = task_data->LockFrozen;
+		data["BrokerFrozen"] = task_data->BrokerFrozen;
+		delete task_data;
+	}
+	dict error;
+	if (task->task_error)
+	{
+		CThostFtdcRspInfoField* task_error = (CThostFtdcRspInfoField*)task->task_error;
+		error["ErrorID"] = task_error->ErrorID;
+		error["ErrorMsg"] = toUtf(task_error->ErrorMsg);
+		delete task_error;
+	}
+	this->onRspQrySecInvestorPosition(data, error, task->task_id, task->task_last);
 };
 
 void TdApi::processRspQryCombInstrumentGuard(Task* task)
@@ -6027,6 +6084,8 @@ void TdApi::processErrRtnCombActionInsert(Task* task)
 		data["InvestUnitID"] = toUtf(task_data->InvestUnitID);
 		data["ComTradeID"] = toUtf(task_data->ComTradeID);
 		data["IPAddress"] = toUtf(task_data->IPAddress);
+		data["TraderID"] = toUtf(task_data->TraderID);
+		data["ActionLocalID"] = toUtf(task_data->ActionLocalID);
 		delete task_data;
 	}
 	dict error;
@@ -8353,9 +8412,9 @@ void TdApi::processTask()
 				break;
 			}
 
-			case ONRSPQUERYMAXORDERVOLUME:
+			case ONRSPQRYMAXORDERVOLUME:
 			{
-				this->processRspQueryMaxOrderVolume(&task);
+				this->processRspQryMaxOrderVolume(&task);
 				break;
 			}
 
@@ -8674,6 +8733,12 @@ void TdApi::processTask()
 			case ONRSPQRYLIMITAMOUNT:
 			{
 				this->processRspQryLimitAmount(&task);
+				break;
+			}
+
+			case ONRSPQRYSECINVESTORPOSITION:
+			{
+				this->processRspQrySecInvestorPosition(&task);
 				break;
 			}
 
@@ -9402,9 +9467,9 @@ int TdApi::reqOrderAction(const dict& req, int reqid)
 	return i;
 };
 
-int TdApi::reqQueryMaxOrderVolume(const dict& req, int reqid)
+int TdApi::reqQryMaxOrderVolume(const dict& req, int reqid)
 {
-	CThostFtdcQueryMaxOrderVolumeField myreq = CThostFtdcQueryMaxOrderVolumeField();
+	CThostFtdcQryMaxOrderVolumeField myreq = CThostFtdcQryMaxOrderVolumeField();
 	memset(&myreq, 0, sizeof(myreq));
 	getString(req, "BrokerID", myreq.BrokerID);
 	getString(req, "InvestorID", myreq.InvestorID);
@@ -9415,7 +9480,7 @@ int TdApi::reqQueryMaxOrderVolume(const dict& req, int reqid)
 	getInt(req, "MaxVolume", &myreq.MaxVolume);
 	getString(req, "ExchangeID", myreq.ExchangeID);
 	getString(req, "InvestUnitID", myreq.InvestUnitID);
-	int i = this->api->ReqQueryMaxOrderVolume(&myreq, reqid);
+	int i = this->api->ReqQryMaxOrderVolume(&myreq, reqid);
 	return i;
 };
 
@@ -9653,6 +9718,8 @@ int TdApi::reqCombActionInsert(const dict& req, int reqid)
 	getString(req, "InvestUnitID", myreq.InvestUnitID);
 	getString(req, "ComTradeID", myreq.ComTradeID);
 	getString(req, "IPAddress", myreq.IPAddress);
+	getString(req, "TraderID", myreq.TraderID);
+	getString(req, "ActionLocalID", myreq.ActionLocalID);
 	int i = this->api->ReqCombActionInsert(&myreq, reqid);
 	return i;
 };
@@ -10174,6 +10241,18 @@ int TdApi::reqQryLimitAmount(const dict& req, int reqid)
 	getString(req, "InvestorID", myreq.InvestorID);
 	getString(req, "ExchangeID", myreq.ExchangeID);
 	int i = this->api->ReqQryLimitAmount(&myreq, reqid);
+	return i;
+};
+
+int TdApi::reqQrySecInvestorPosition(const dict& req, int reqid)
+{
+	CThostFtdcQrySecInvestorPositionField myreq = CThostFtdcQrySecInvestorPositionField();
+	memset(&myreq, 0, sizeof(myreq));
+	getString(req, "BrokerID", myreq.BrokerID);
+	getString(req, "InvestorID", myreq.InvestorID);
+	getString(req, "ExchangeID", myreq.ExchangeID);
+	getString(req, "UnderlyingInstrID", myreq.UnderlyingInstrID);
+	int i = this->api->ReqQrySecInvestorPosition(&myreq, reqid);
 	return i;
 };
 
@@ -10854,11 +10933,11 @@ public:
 		}
 	};
 
-	void onRspQueryMaxOrderVolume(const dict& data, const dict& error, int reqid, bool last) override
+	void onRspQryMaxOrderVolume(const dict& data, const dict& error, int reqid, bool last) override
 	{
 		try
 		{
-			PYBIND11_OVERLOAD(void, TdApi, onRspQueryMaxOrderVolume, data, error, reqid, last);
+			PYBIND11_OVERLOAD(void, TdApi, onRspQryMaxOrderVolume, data, error, reqid, last);
 		}
 		catch (const error_already_set& e)
 		{
@@ -11495,6 +11574,18 @@ public:
 		try
 		{
 			PYBIND11_OVERLOAD(void, TdApi, onRspQryLimitAmount, data, error, reqid, last);
+		}
+		catch (const error_already_set& e)
+		{
+			cout << e.what() << endl;
+		}
+	};
+
+	void onRspQrySecInvestorPosition(const dict& data, const dict& error, int reqid, bool last) override
+	{
+		try
+		{
+			PYBIND11_OVERLOAD(void, TdApi, onRspQrySecInvestorPosition, data, error, reqid, last);
 		}
 		catch (const error_already_set& e)
 		{
@@ -12371,7 +12462,7 @@ PYBIND11_MODULE(vnsopttd, m)
 		.def("reqParkedOrderInsert", &TdApi::reqParkedOrderInsert)
 		.def("reqParkedOrderAction", &TdApi::reqParkedOrderAction)
 		.def("reqOrderAction", &TdApi::reqOrderAction)
-		.def("reqQueryMaxOrderVolume", &TdApi::reqQueryMaxOrderVolume)
+		.def("reqQryMaxOrderVolume", &TdApi::reqQryMaxOrderVolume)
 		.def("reqSettlementInfoConfirm", &TdApi::reqSettlementInfoConfirm)
 		.def("reqRemoveParkedOrder", &TdApi::reqRemoveParkedOrder)
 		.def("reqRemoveParkedOrderAction", &TdApi::reqRemoveParkedOrderAction)
@@ -12425,6 +12516,7 @@ PYBIND11_MODULE(vnsopttd, m)
 		.def("reqQryInvestorLevel", &TdApi::reqQryInvestorLevel)
 		.def("reqQryExecFreeze", &TdApi::reqQryExecFreeze)
 		.def("reqQryLimitAmount", &TdApi::reqQryLimitAmount)
+		.def("reqQrySecInvestorPosition", &TdApi::reqQrySecInvestorPosition)
 		.def("reqQryCombInstrumentGuard", &TdApi::reqQryCombInstrumentGuard)
 		.def("reqQryCombAction", &TdApi::reqQryCombAction)
 		.def("reqQryTransferSerial", &TdApi::reqQryTransferSerial)
@@ -12461,7 +12553,7 @@ PYBIND11_MODULE(vnsopttd, m)
 		.def("onRspParkedOrderInsert", &TdApi::onRspParkedOrderInsert)
 		.def("onRspParkedOrderAction", &TdApi::onRspParkedOrderAction)
 		.def("onRspOrderAction", &TdApi::onRspOrderAction)
-		.def("onRspQueryMaxOrderVolume", &TdApi::onRspQueryMaxOrderVolume)
+		.def("onRspQryMaxOrderVolume", &TdApi::onRspQryMaxOrderVolume)
 		.def("onRspSettlementInfoConfirm", &TdApi::onRspSettlementInfoConfirm)
 		.def("onRspRemoveParkedOrder", &TdApi::onRspRemoveParkedOrder)
 		.def("onRspRemoveParkedOrderAction", &TdApi::onRspRemoveParkedOrderAction)
@@ -12515,6 +12607,7 @@ PYBIND11_MODULE(vnsopttd, m)
 		.def("onRspQryInvestorLevel", &TdApi::onRspQryInvestorLevel)
 		.def("onRspQryExecFreeze", &TdApi::onRspQryExecFreeze)
 		.def("onRspQryLimitAmount", &TdApi::onRspQryLimitAmount)
+		.def("onRspQrySecInvestorPosition", &TdApi::onRspQrySecInvestorPosition)
 		.def("onRspQryCombInstrumentGuard", &TdApi::onRspQryCombInstrumentGuard)
 		.def("onRspQryCombAction", &TdApi::onRspQryCombAction)
 		.def("onRspQryTransferSerial", &TdApi::onRspQryTransferSerial)
