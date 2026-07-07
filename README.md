@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    <img src ="https://img.shields.io/badge/version-3.7.1.0-blueviolet.svg"/>
+    <img src ="https://img.shields.io/badge/version-3.7.5.0-blueviolet.svg"/>
     <img src ="https://img.shields.io/badge/platform-windows|linux-yellow.svg"/>
     <img src ="https://img.shields.io/badge/python-3.10|3.11|3.12|3.13-blue.svg" />
     <img src ="https://img.shields.io/github/license/vnpy/vnpy.svg?color=orange"/>
@@ -13,7 +13,7 @@
 
 ## 说明
 
-基于CTP期权版的3.7.0接口封装开发，接口中自带的是【穿透式测试环境】的dll文件。
+基于CTP期权版的3.7.5接口封装开发，接口中自带的是【穿透式测试环境】的dll文件。
 
 ## 安装
 
