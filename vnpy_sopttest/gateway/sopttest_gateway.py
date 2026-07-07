@@ -332,8 +332,11 @@ class SopttestMdApi(MdApi):
             ask_volume_1=data["AskVolume1"],
             gateway_name=self.gateway_name
         )
-        
-        tick.extra = {"trading_active": contract.extra["trading_active"]}
+
+        tick.extra = {
+            "trading_active": contract.extra["trading_active"],
+            "market_closed": data["ClosePrice"] > 0
+        }
 
         tick.bid_price_2 = data["BidPrice2"]
         tick.bid_price_3 = data["BidPrice3"]
